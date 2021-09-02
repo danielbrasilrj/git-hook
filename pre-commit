@@ -1,0 +1,17 @@
+#!/bin/sh
+
+echo "Pre-commit"
+
+filename='azure-template.yml'
+
+oldVersion=$(grep -A3 'variables:' $filename | tail -n1); oldVersion=${oldVersion//*appversion: /};
+echo "Old version: $oldVersion"
+
+newVersion=${oldVersion%.*}.$((${oldVersion##*.}+1))
+echo "New version: $newVersion"
+
+sed -i'.backup' -e "s/$oldVersion/$newVersion/" $filename
+rm $filename'.backup'
+
+git update-index --add $filename
+echo "The app version has been incremented!"
